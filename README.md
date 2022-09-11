@@ -2,7 +2,7 @@
 
 [Logo del App]: #
 <p align="center">
-  <img src="https://github.com/juanp-ctrl/App_Isometricos/blob/main/Imgs/Logo_app.png?raw=true" alt="Icono de la App"/>
+  <img src="https://github.com/juanp-ctrl/App_Isometricos/blob/main/Imgs/Logo_app_m.png?raw=true" alt="Icono de la App"/>
 </p>
 
 Este proyecto busca desarrollar un aplicativo móvil que le permitirá al usuario crear rutinas de ejercicio isométricas personalizadas, con los tiempos de ejercicio y de descanso configurados por él. La aplicación permitirá crear diferentes tipos de rutinas para diferentes ocasiones y llevar un histórico de las rachas de rutinas completadas.
