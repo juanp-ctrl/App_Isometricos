@@ -1,117 +1,81 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow strict-local
- */
-
 import React from 'react';
-import Node from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+//Libreria de navegacion
+import {NavigationContainer} from '@react-navigation/native';
+//El metodo de navegacion por tabs
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+//Libreria de iconos
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 
-/* $FlowFixMe[missing-local-annot] The type annotation(s) required by Flow's
- * LTI update could not be added via codemod */
-const Section = ({children, title}) => {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-};
+import Menu_rutinas from './views/Menu_rutinas';
+import Editar_rutinas from './views/Editar_rutinas';
+import Calendario from './views/Calendario';
 
+//Aplicacion principal
 const App = ()  => {
-  const isDarkMode = useColorScheme() === 'dark';
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
+  const Tab = createBottomTabNavigator();
 
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.js</Text> para cambiar esto
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
-  );
-};
+    <NavigationContainer>
+      <Tab.Navigator 
+        screenOptions={({route}) => ({
 
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
+          tabBarInactiveTintColor: "black",
+          tabBarInactiveBackgroundColor: "#e5e5e5",
+          tabBarLabelStyle: {
+            fontSize: 14
+          },
+          tabBarStyle: [
+            {
+              display: "flex"
+            }
+          ],
+
+          // Control de los iconos de las tabs
+          tabBarIcon: ({ focused, size, color }) =>{
+            let iconName;
+            if (route.name === "Ejercitarse"){
+              iconName = "stopwatch";
+              size = focused ? 25 : 20;
+              color = color;
+            } else if (route.name === "Editar"){
+              iconName = "stream";
+              size = focused ? 25 : 20;
+              color = color;
+            }
+            else if (route.name === "Calendario"){
+              iconName = "calendar";
+              size = focused ? 25 : 20;
+              color = color;
+            }
+            return (
+              <FontAwesome5
+                name = {iconName}
+                size = {size}  
+                color = {color}
+              />
+            )
+          }
+        })
+      }
+      >
+        <Tab.Screen
+          name="Calendario"
+          component={Calendario}
+        />
+        <Tab.Screen
+          name="Ejercitarse"
+          component={Menu_rutinas}
+          // options={{tabBarBadge: 1}}
+        />
+        <Tab.Screen
+          name="Editar"
+          component={Editar_rutinas}
+        />
+      </Tab.Navigator>
+    </NavigationContainer>
+  )
+};
 
 export default App;
