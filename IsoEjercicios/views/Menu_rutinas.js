@@ -6,6 +6,7 @@ import {
   SectionList,
   TouchableOpacity,
   View,
+  Pressable
 } from 'react-native';
 
 const Menu_rutinas = ({navigation}) => {
@@ -21,9 +22,41 @@ const Menu_rutinas = ({navigation}) => {
     setRefresher(true);
     setRutinas([...rutinas,
       { nombre: "Rutina "+(rutinas.length+1),
-        data : [`Dias: ${libros.length+1}-1`, `Descripcion: ${libros.length+1}-2`]}]);
+        data : [`Dias: ${rutinas.length+1}-1`, `Descripcion: ${rutinas.length+1}-2`]}]);
     setRefresher(false);
   }
+
+  let onpres = false;
+
+  const tarjeta_presionada = (nombre) => {
+    console.log(nombre)
+    onpres = !onpres
+    console.log(onpres)
+  }
+
+  const style_tarjeta_presionada = () => {
+    if(onpres == false){
+      return{
+        backgroundColor: "#2ba0c8d6",
+        marginLeft: 20,
+        marginRight: 20,
+        marginTop: 20,
+        borderTopStartRadius: 20,
+        borderTopEndRadius: 20
+      }
+    }
+    else if(onpres == true){
+      return{
+        backgroundColor: "#f583219c",
+        marginLeft: 20,
+        marginRight: 20,
+        marginTop: 20,
+        borderTopStartRadius: 20,
+        borderTopEndRadius: 20
+      }
+    }
+  }
+
 
     return(
 
@@ -32,28 +65,32 @@ const Menu_rutinas = ({navigation}) => {
         {/* Titulo de menu de rutinas */}
         <Text style={styles.titulo_principal}>Menu de rutinas</Text>
         
+        {/* Lista de rutinas guardadas */}
         <SectionList
 
-      refreshControl={
-        <RefreshControl
-          refreshing={Refresh}
-          onRefresh = {actualizar}
+          refreshControl={
+            <RefreshControl
+              refreshing={Refresh}
+              onRefresh = {actualizar}
+            />
+          }
+
+          keyExtractor={(item, index) => index.toString()} 
+          sections={rutinas}
+          
+          renderItem = {({ item }) => (
+            <Text style={styles.contenido_tarjeta}>{item}</Text>
+          )}
+
+          renderSectionHeader = {({section}) => (
+            <Pressable 
+                onPress={()=>{tarjeta_presionada(section.nombre)}}
+                style={style_tarjeta_presionada}
+                >
+                  <Text style={styles.titulo_rutinas}>{section.nombre}</Text>
+            </Pressable>
+          )}
         />
-      }
-
-      keyExtractor={(item, index) => index.toString()} 
-      sections={rutinas}
-      
-      renderItem = {({ item }) => (
-        <Text style={styles.contenido_tarjeta}>{item}</Text>
-      )}
-
-      renderSectionHeader = {({section}) => (
-        <View style={styles.contenedor_titulo}>
-          <Text style={styles.titulo_rutinas}>{section.nombre}</Text>
-        </View>
-      )}
-      />
 
       </View>
 
@@ -86,17 +123,15 @@ const Menu_rutinas = ({navigation}) => {
       borderRadius: 10,
       margin: 10
     },
-    contenedor_titulo: {
-      backgroundColor: "#2ba0c8d6",
-      marginLeft: 20,
-      marginRight: 20,
-      marginTop: 20
-    },
     contenido_tarjeta: {
-      fontSize: 18,
+      fontSize: 17,
       marginLeft: 20,
       marginRight: 20,
-      backgroundColor: "white"
+      paddingTop: 5,
+      paddingLeft: 10,
+      paddingBottom: 7,
+      backgroundColor: "white",
+      color: "black"
     },
     titulo_rutinas: {
       color: "white",
