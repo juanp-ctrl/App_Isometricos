@@ -9,11 +9,17 @@ import {
   Pressable
 } from 'react-native';
 
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+
+
 const Menu_rutinas = ({navigation}) => {
 
   const [rutinas, setRutinas] = useState([
     { nombre: "Rutina "+1,
-      data : [`Dias: ${"L - X - V"}`, `Duracion: ${30} minutos`]}
+      data : [
+        {Dias: `${"L - X - V"}`, 
+        Duracion: `${30} minutos`}
+      ]}
   ])
   
   const [Refresh, setRefresher] = useState(false);
@@ -22,7 +28,10 @@ const Menu_rutinas = ({navigation}) => {
     setRefresher(true);
     setRutinas([...rutinas,
       { nombre: "Rutina "+(rutinas.length+1),
-        data : [`Dias: ${rutinas.length+1}-1`, `Descripcion: ${rutinas.length+1}-2`]}]);
+      data : [
+        {Dias: `${"L - X - V"}`, 
+        Duracion: `${30} minutos`}
+      ]}]);
     setRefresher(false);
   }
 
@@ -79,7 +88,10 @@ const Menu_rutinas = ({navigation}) => {
           sections={rutinas}
           
           renderItem = {({ item }) => (
-            <Text style={styles.contenido_tarjeta}>{item}</Text>
+            <View style={styles.contenido_tarjeta}>
+              <Text style={styles.texto_tarjetas}>Dias: {item.Dias}</Text>
+              <Text style={styles.texto_tarjetas}>Duracion: {item.Duracion}</Text>
+            </View>
           )}
 
           renderSectionHeader = {({section}) => (
@@ -92,13 +104,26 @@ const Menu_rutinas = ({navigation}) => {
           )}
         />
 
+        {/* Contenedor de los dos botones */}
+        <View style={styles.contenedor_botones}>
+          <View style={styles.contenedor_añadir}>
+            <TouchableOpacity style={styles.boton_añadir} onPress={() => {navigation.navigate("Editar")}}>
+              <Text style={styles.texto_boton_añadir}>Añadir rutina</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.contenedor_play}>
+            <TouchableOpacity style={styles.boton_play}>
+              <FontAwesome5
+                  name = {"play"}
+                  size = {18}
+                  color = {"black"}
+                  style = {styles.icono_boton_play}
+                />
+            </TouchableOpacity>
+          </View>
+        </View>
+
       </View>
-
-      //Lista de las opciones de rutinas
-
-      //Boton de añadir rutina
-
-      //Boton de darle play a la rutina
     )
   }
 
@@ -109,34 +134,79 @@ const Menu_rutinas = ({navigation}) => {
     },
     titulo_principal:{
       color: "black",
-      paddingTop: 25,
+      paddingTop: 20,
       paddingLeft: 25,
+      paddingBottom: 10,
       fontSize: 24
     },
     texto:{
       color: "black",
-      fontSize: 20
-    },
-    boton:{
-      backgroundColor: "aqua",
-      padding: 14,
-      borderRadius: 10,
-      margin: 10
+      fontSize: 14
     },
     contenido_tarjeta: {
-      fontSize: 17,
       marginLeft: 20,
       marginRight: 20,
       paddingTop: 5,
       paddingLeft: 10,
       paddingBottom: 7,
       backgroundColor: "white",
-      color: "black"
+      shadowColor: "#000",
+      shadowOffset: {
+        width: 0,
+        height: 7,
+      },
+      shadowOpacity: 0.41,
+      shadowRadius: 9.11,
+
+      elevation: 14,
+    },
+    texto_tarjetas:{
+      fontSize: 17,
+      color: "black",
+      paddingBottom: 3,
+      paddingTop: 3
     },
     titulo_rutinas: {
       color: "white",
       margin: 14,
       fontSize: 27
+    },
+    contenedor_botones: {
+      flexDirection: 'row'
+    },
+    contenedor_añadir: {
+      flex: 1,
+      flexDirection: 'row',
+    },
+    contenedor_play: {
+      flex: 1,
+      flexDirection: 'row-reverse',
+    },
+    boton_añadir:{
+      backgroundColor: "white",
+      borderRadius: 10,
+      marginLeft: 27,
+      marginBottom: 30,
+      marginTop: 39,
+      height: 40
+    },
+    boton_play:{
+      backgroundColor: "#2ba0c8d6",
+      padding: 14,
+      borderRadius: 50,
+      marginBottom: 30,
+      marginTop: 27,
+      marginRight: 37
+    },
+    texto_boton_añadir:{
+      color: "black",
+      fontSize: 14,
+      paddingLeft: 17,
+      paddingRight: 17,
+      paddingTop: 10
+    },
+    icono_boton_play:{
+      padding: 5
     }
   });
 
