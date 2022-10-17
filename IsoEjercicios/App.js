@@ -19,6 +19,7 @@ const App = ()  => {
   return (
     <NavigationContainer>
       <Tab.Navigator 
+        initialRouteName='Ejercitarse'  
         screenOptions={({route}) => ({
 
           tabBarInactiveTintColor: "black",

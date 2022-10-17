@@ -18,7 +18,8 @@ const Calendario = ({navigation}) => {
     body:{
       flex: 1,
       justifyContent: "center",
-      alignItems: "center"
+      alignItems: "center",
+      backgroundColor: "#b2e5e5"
     },
     texto:{
       color: "black",
