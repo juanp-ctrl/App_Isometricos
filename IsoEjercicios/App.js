@@ -23,6 +23,7 @@ const App = ()  => {
         screenOptions={({route}) => ({
 
           tabBarInactiveTintColor: "black",
+          tabBarActiveTintColor: "#2ba0c8d6",
           tabBarInactiveBackgroundColor: "#e5e5e5",
           tabBarLabelStyle: {
             fontSize: 14

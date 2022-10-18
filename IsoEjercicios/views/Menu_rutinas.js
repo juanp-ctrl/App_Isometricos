@@ -10,6 +10,17 @@ import {
 } from 'react-native';
 
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import SQLite from 'react-native-sqlite-storage';
+
+const db = SQLite.openDatabase(
+  {
+    name: "database.db",
+    createFromLocation: "~www/database.db",
+  },
+  ()=>{console.log("bien hecho")},
+  error => {console.log(error)}
+
+);
 
 
 const Menu_rutinas = ({navigation}) => {
@@ -46,7 +57,7 @@ const Menu_rutinas = ({navigation}) => {
   const style_tarjeta_presionada = () => {
     if(onpres == false){
       return{
-        backgroundColor: "#2ba0c8d6",
+        backgroundColor: "#60477eeb",
         marginLeft: 20,
         marginRight: 20,
         marginTop: 20,
@@ -56,12 +67,16 @@ const Menu_rutinas = ({navigation}) => {
     }
     else if(onpres == true){
       return{
-        backgroundColor: "#f583219c",
-        marginLeft: 20,
-        marginRight: 20,
+        backgroundColor: "#7887bec4",
+        marginLeft: 10,
+        marginRight: 10,
         marginTop: 20,
         borderTopStartRadius: 20,
-        borderTopEndRadius: 20
+        borderTopEndRadius: 20,
+        borderBottomStartRadius: 20,
+        borderBottomEndRadius: 20,
+        paddingTop: 3,
+        paddingBottom: 3,
       }
     }
   }
@@ -72,10 +87,10 @@ const Menu_rutinas = ({navigation}) => {
       //Vista contenedora principal
       <View style={styles.body}> 
         {/* Titulo de menu de rutinas */}
-        <Text style={styles.titulo_principal}>Menu de rutinas</Text>
+        <Text style={styles.titulo_principal}>Menú de rutinas</Text>
         
         {/* Lista de rutinas guardadas */}
-        <SectionList
+        <SectionList 
 
           refreshControl={
             <RefreshControl
@@ -89,8 +104,8 @@ const Menu_rutinas = ({navigation}) => {
           
           renderItem = {({ item }) => (
             <View style={styles.contenido_tarjeta}>
-              <Text style={styles.texto_tarjetas}>Dias: {item.Dias}</Text>
-              <Text style={styles.texto_tarjetas}>Duracion: {item.Duracion}</Text>
+              <Text style={styles.texto_tarjetas}>Días: {item.Dias}</Text>
+              <Text style={styles.texto_tarjetas}>Duración: {item.Duracion}</Text>
             </View>
           )}
 
@@ -106,11 +121,15 @@ const Menu_rutinas = ({navigation}) => {
 
         {/* Contenedor de los dos botones */}
         <View style={styles.contenedor_botones}>
+
+          {/* Boton de añadir rutina */}
           <View style={styles.contenedor_añadir}>
             <TouchableOpacity style={styles.boton_añadir} onPress={() => {navigation.navigate("Editar")}}>
               <Text style={styles.texto_boton_añadir}>Añadir rutina</Text>
             </TouchableOpacity>
           </View>
+
+          {/* Boton de play */}
           <View style={styles.contenedor_play}>
             <TouchableOpacity style={styles.boton_play}>
               <FontAwesome5
@@ -121,6 +140,7 @@ const Menu_rutinas = ({navigation}) => {
                 />
             </TouchableOpacity>
           </View>
+
         </View>
 
       </View>
@@ -146,6 +166,7 @@ const Menu_rutinas = ({navigation}) => {
     contenido_tarjeta: {
       marginLeft: 20,
       marginRight: 20,
+      marginBottom: 3,
       paddingTop: 5,
       paddingLeft: 10,
       paddingBottom: 7,
@@ -159,6 +180,8 @@ const Menu_rutinas = ({navigation}) => {
       shadowRadius: 9.11,
 
       elevation: 14,
+      borderBottomLeftRadius: 10,
+      borderBottomRightRadius: 10
     },
     texto_tarjetas:{
       fontSize: 17,
@@ -206,7 +229,10 @@ const Menu_rutinas = ({navigation}) => {
       paddingTop: 10
     },
     icono_boton_play:{
-      padding: 5
+      paddingLeft: 7,
+      paddingTop: 5,
+      paddingRight: 7,
+      paddingBottom: 5
     }
   });
 
