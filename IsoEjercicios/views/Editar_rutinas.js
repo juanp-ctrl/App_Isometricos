@@ -37,7 +37,7 @@ const Editar_rutinas = ({navigation}) => {
             let len = results.rows.length;
             console.log(len)
             if (len > 0){
-              let Nombre_ejercicio = results.rows.item(0).Nombre;
+              let Nombre_ejercicio = results.rows.item(2).Nombre;
               setNombreE(Nombre_ejercicio)
               console.log(nombre_e)
             }

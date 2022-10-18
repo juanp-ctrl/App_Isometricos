@@ -22,18 +22,62 @@ const db = SQLite.openDatabase(
 
 );
 
+let primer_nombre = "", dias1, duracion1;
 
 const Menu_rutinas = ({navigation}) => {
 
+  db.transaction((tx) => {
+     tx.executeSql(
+      "SELECT Nombre, Dias, Duracion FROM Rutinas",
+      [],
+      (tx, results) => {
+        let leng = results.rows.length;
+        console.log(leng)
+        if(leng > 0){
+          primer_nombre = results.rows.item(0).Nombre
+          dias1 = results.rows.item(0).Dias
+          duracion1 = results.rows.item(0).Duracion
+        }
+      }
+    )
+  })
+
   const [rutinas, setRutinas] = useState([
-    { nombre: "Rutina "+1,
+    { 
+      nombre: primer_nombre,
       data : [
-        {Dias: `${"L - X - V"}`, 
-        Duracion: `${30} minutos`}
+        {Dias: dias1, 
+        Duracion: duracion1}
       ]}
   ])
-  
+
   const [Refresh, setRefresher] = useState(false);
+
+  const cargarRutinas = () => {
+    setRefresher(true);
+    db.transaction((tx) => {
+      tx.executeSql(
+        "SELECT Nombre, Dias, Duracion FROM Rutinas",
+        [],
+        (tx, results) => {
+          let len = results.rows.length;
+          if(len > 0){
+            console.log(len)
+            for (let i = 0; i <= results.rows.length; i++) {
+              setRutinas([...rutinas,
+                { nombre: results.rows.item(i).Nombre,
+                data : [
+                  {Dias: results.rows.item(i).Dias, 
+                  Duracion: results.rows.item(i).Duracion}
+                ]}]);
+            }
+          }
+        }
+      )
+    })
+    setRefresher(false);
+  }
+
 
   const actualizar = () => {
     setRefresher(true);
@@ -95,7 +139,7 @@ const Menu_rutinas = ({navigation}) => {
           refreshControl={
             <RefreshControl
               refreshing={Refresh}
-              onRefresh = {actualizar}
+              onRefresh = {cargarRutinas}
             />
           }
 
