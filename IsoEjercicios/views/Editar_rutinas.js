@@ -1,4 +1,4 @@
-import React, { cloneElement, useState } from 'react';
+import React, { cloneElement, useEffect, useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -6,11 +6,16 @@ import {
   SectionList,
   TouchableOpacity,
   View,
-  Pressable
+  Pressable,
+  FlatList
 } from 'react-native';
 
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import SQLite from 'react-native-sqlite-storage';
+import {NavigationContainer} from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
+import Añadir_rutinas from './Añadir_rutinas';
 
 const db = SQLite.openDatabase(
   {
@@ -24,54 +29,25 @@ const db = SQLite.openDatabase(
 
 const Editar_rutinas = ({navigation}) => {
 
-  const [nombre_e, setNombreE] = useState("e")
+  const [rutinas, setRutinas] = useState([]);
 
-  const getData = () => {
-    try {
-      console.log("intentando")
-      db.transaction((tx) => {
-        tx.executeSql(
-          "SELECT Nombre FROM Ejercicios",
-          [],
-          (tx, results) => {
-            let len = results.rows.length;
-            console.log(len)
-            if (len > 0){
-              let Nombre_ejercicio = results.rows.item(2).Nombre;
-              setNombreE(Nombre_ejercicio)
-              console.log(nombre_e)
-            }
-          }
-        )
-      })
-      console.log(nombre_e)
-    } catch (error) {
-      console.log(error)
-    }
-  }
-
-  const [rutinas, setRutinas] = useState([
-    { nombre: "Rutina "+1,
-      data : [
-        {id: 1,
-        Dias: `${"L - X - V"}`, 
-        Duracion: `${30} minutos`}
-      ]}
-  ])
-  
-  const [Refresh, setRefresher] = useState(false);
-
-  const actualizar = () => {
-    setRefresher(true);
-    setRutinas([...rutinas,
-      { nombre: "Rutina "+(rutinas.length+1),
-      data : [
-        {id: 1,
-        Dias: `${"L - X - V"}`, 
-        Duracion: `${30} minutos`}
-      ]}]);
-    setRefresher(false);
-  }
+  useEffect(() => {
+    db.transaction((tx) => {
+      tx.executeSql(
+       "SELECT Nombre, Dias, Duracion FROM Rutinas",
+       [],
+       (tx, results) => {
+        // console.log(results.rows.item(0))
+        // console.log(results.rows.length)
+        let temp = [];
+        for (let i = 0; i < results.rows.length; i++){
+          temp.push(results.rows.item(i));
+        }
+        setRutinas(temp)
+       })
+   })
+   console.log(rutinas)
+  }, []);
 
   let onpres = false;
 
@@ -104,89 +80,107 @@ const Editar_rutinas = ({navigation}) => {
     }
   }
 
+  let listViewItemSeparator = () => {
+    return (
+      <View style={{height: 0.2, width: '100%', backgroundColor: '#808080'}} />
+    );
+  };
 
-    return(
+  let listItemView = (item) => {
+    return (
+      <View>
+        <View style={styles.contenedor_titulo_tarjeta}>
+          {/* Titulo de la tarjeta */}
+          <View style={styles.contenedor_titulo}>
+            <Text style={styles.titulo_rutinas}>{item.Nombre}</Text>
+          </View>
 
-      //Vista contenedora de editar rutinas
-      <View style={styles.body}> 
-        {/* Titulo de editar rutinas */}
-        <Text style={styles.titulo_principal}>Rutinas</Text>
-        
-        {/* Lista de rutinas guardadas */}
-        <SectionList style={styles.lista}
+          {/* Botones de la tarjeta */}
+          <View style={styles.contenedor_botones_titulo}>
 
-          refreshControl={
-            <RefreshControl
-              refreshing={Refresh}
-              onRefresh = {actualizar}
-            />
-          }
-
-          keyExtractor={(item, index) => index.toString()} 
-          sections={rutinas}
-          
-          renderItem = {({ item }) => (
-            <View style={styles.contenido_tarjeta}>
-              <Text style={styles.texto_tarjetas}>Días: {item.Dias}</Text>
-              <Text style={styles.texto_tarjetas}>Duración: {item.Duracion} {item.id}</Text>
-            </View>
-          )}
-
-          renderSectionHeader = {({section}) => (
-            <View style={styles.contenedor_titulo_tarjeta}>
-
-              {/* Titulo de la tarjeta */}
-              <View style={styles.contenedor_titulo}>
-                <Text style={styles.titulo_rutinas}>{section.nombre}</Text>
-              </View>
-
-              {/* Botones de la tarjeta */}
-              <View style={styles.contenedor_botones_titulo}>
-
-                {/* Boton de eliminar rutina */}
-                <TouchableOpacity style={styles.botones_titulo}>
-                  <FontAwesome5
-                      name = {"trash"}
-                      size = {18}
-                      color = {"black"}
-                      style = {styles.icono_boton_basura}
-                    />
-                </TouchableOpacity>
-
-                {/* Boton de editar rutina */}
-                <TouchableOpacity style={styles.botones_titulo}>
-                  <FontAwesome5
-                      name = {"pen"}
-                      size = {18}
-                      color = {"black"}
-                      style = {styles.icono_boton_editar}
-                    />
-                </TouchableOpacity>
-              </View>
-            </View>
-          )}
-        />
-
-        {/* Contenedor del boton de añadir rutina */}
-        <View style={styles.contenedor_botones}>
-
-          {/* Boton de añadir rutina */}
-          <View style={styles.contenedor_boton_añadir}>
-            <TouchableOpacity style={styles.boton_añadir}
-              onPress={getData}
-              >
+            {/* Boton de eliminar rutina */}
+            <TouchableOpacity style={styles.botones_titulo}>
               <FontAwesome5
-                  name = {"plus"}
-                  size = {25}
+                  name = {"trash"}
+                  size = {18}
                   color = {"black"}
-                  style = {styles.icono_boton_añadir}
+                  style = {styles.icono_boton_basura}
+                />
+            </TouchableOpacity>
+
+            {/* Boton de editar rutina */}
+            <TouchableOpacity style={styles.botones_titulo}>
+              <FontAwesome5
+                  name = {"pen"}
+                  size = {18}
+                  color = {"black"}
+                  style = {styles.icono_boton_editar}
                 />
             </TouchableOpacity>
           </View>
-
         </View>
+          <View style={styles.contenido_tarjeta}>
+            <Text style={styles.texto_tarjetas}>Días: {item.Dias}</Text>
+            <Text style={styles.texto_tarjetas}>Duración: {item.Duracion}</Text>
+          </View>
+      </View>
+    );
+  };
+
+  const Stack = createNativeStackNavigator();
+
+  const Vista_editar = () => {
+    return(//Vista contenedora de editar rutinas
+    <View style={styles.body}> 
+    {/* Titulo de editar rutinas */}
+    <Text style={styles.titulo_principal}>Rutinas</Text>
+    
+    {/* Lista de rutinas guardadas */}
+    <View style={{flex: 1}}>
+        <FlatList style={styles.lista}
+          data={rutinas}
+          ItemSeparatorComponent={listViewItemSeparator}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={({item}) => listItemView(item)}
+        />
+    </View>
+
+    {/* Contenedor del boton de añadir rutina */}
+    <View style={styles.contenedor_botones}>
+
+      {/* Boton de añadir rutina */}
+      <View style={styles.contenedor_boton_añadir}>
+        <TouchableOpacity style={styles.boton_añadir}
+          onPress={()=>{navigation.navigate("Añadir")}}
+          >
+          <FontAwesome5
+              name = {"plus"}
+              size = {25}
+              color = {"black"}
+              style = {styles.icono_boton_añadir}
+            />
+        </TouchableOpacity>
+      </View>
 
       </View>
+
+    </View>)
+  }
+
+    return(
+        <Stack.Navigator>
+          <Stack.Screen
+          name = "Editar"
+          component={Vista_editar}
+          options={{
+            header: () => null
+          }}
+          />
+          <Stack.Screen
+            name = "Añadir"
+            component={Añadir_rutinas}
+          />
+        </Stack.Navigator>
     )
   }
 

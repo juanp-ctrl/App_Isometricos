@@ -1,4 +1,4 @@
-import React, { cloneElement, useState } from 'react';
+import React, { cloneElement, useEffect, useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -6,7 +6,9 @@ import {
   SectionList,
   TouchableOpacity,
   View,
-  Pressable
+  Pressable,
+  SafeAreaView,
+  FlatList
 } from 'react-native';
 
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
@@ -22,73 +24,66 @@ const db = SQLite.openDatabase(
 
 );
 
-let primer_nombre = "", dias1, duracion1;
-
 const Menu_rutinas = ({navigation}) => {
+  
+  const [rutinas, setRutinas] = useState([]);
 
-  db.transaction((tx) => {
-     tx.executeSql(
-      "SELECT Nombre, Dias, Duracion FROM Rutinas",
-      [],
-      (tx, results) => {
-        let leng = results.rows.length;
-        console.log(leng)
-        if(leng > 0){
-          primer_nombre = results.rows.item(0).Nombre
-          dias1 = results.rows.item(0).Dias
-          duracion1 = results.rows.item(0).Duracion
-        }
-      }
-    )
-  })
-
-  const [rutinas, setRutinas] = useState([
-    { 
-      nombre: primer_nombre,
-      data : [
-        {Dias: dias1, 
-        Duracion: duracion1}
-      ]}
-  ])
-
-  const [Refresh, setRefresher] = useState(false);
-
-  const cargarRutinas = () => {
-    setRefresher(true);
+  useEffect(() => {
     db.transaction((tx) => {
       tx.executeSql(
-        "SELECT Nombre, Dias, Duracion FROM Rutinas",
-        [],
-        (tx, results) => {
-          let len = results.rows.length;
-          if(len > 0){
-            console.log(len)
-            for (let i = 0; i <= results.rows.length; i++) {
-              setRutinas([...rutinas,
-                { nombre: results.rows.item(i).Nombre,
-                data : [
-                  {Dias: results.rows.item(i).Dias, 
-                  Duracion: results.rows.item(i).Duracion}
-                ]}]);
-            }
-          }
+       "SELECT Nombre, Dias, Duracion FROM Rutinas",
+       [],
+       (tx, results) => {
+        // console.log(results.rows.item(0))
+        // console.log(results.rows.length)
+        let temp = [];
+        for (let i = 0; i < results.rows.length; i++){
+          temp.push(results.rows.item(i));
         }
-      )
-    })
-    setRefresher(false);
-  }
+        setRutinas(temp)
+       })
+   })
+   console.log(rutinas)
+  }, []);
+
+  // const [Refresh, setRefresher] = useState(false);
+
+  // const cargarRutinas = () => {
+  //   setRefresher(true);
+  //   db.transaction((tx) => {
+  //     tx.executeSql(
+  //       "SELECT Nombre, Dias, Duracion FROM Rutinas",
+  //       [],
+  //       (tx, results) => {
+  //         let len = results.rows.length;
+  //         if(len > 0){
+  //           console.log(len)
+  //           for (let i = 0; i <= results.rows.length; i++) {
+  //             setRutinas([...rutinas,
+  //               { nombre: results.rows.item(i).Nombre,
+  //               data : [
+  //                 {Dias: results.rows.item(i).Dias, 
+  //                 Duracion: results.rows.item(i).Duracion}
+  //               ]}]);
+  //           }
+  //         }
+  //       }
+  //     )
+  //   })
+  //   setRefresher(false);
+  // }
 
 
-  const actualizar = () => {
-    setRefresher(true);
-    setRutinas([...rutinas,
-      { nombre: "Rutina "+(rutinas.length+1),
-      data : [
-        {Dias: `${"L - X - V"}`, 
-        Duracion: `${30} minutos`}
-      ]}]);
-    setRefresher(false);
-  }
+  // const actualizar = () => {
+  //   setRefresher(true);
+  //   setRutinas([...rutinas,
+  //     { nombre: "Rutina "+(rutinas.length+1),
+  //     data : [
+  //       {Dias: `${"L - X - V"}`, 
+  //       Duracion: `${30} minutos`}
+  //     ]}]);
+  //   setRefresher(false);
+  // }
 
   let onpres = false;
 
@@ -125,6 +120,28 @@ const Menu_rutinas = ({navigation}) => {
     }
   }
 
+  let listViewItemSeparator = () => {
+    return (
+      <View style={{height: 0.2, width: '100%', backgroundColor: '#808080'}} />
+    );
+  };
+
+  let listItemView = (item) => {
+    return (
+      <View>
+          <Pressable 
+                onPress={()=>{tarjeta_presionada(item.Nombre)}}
+                style={style_tarjeta_presionada}
+                >
+                  <Text style={styles.titulo_rutinas}>{item.Nombre}</Text>
+            </Pressable>
+            <View style={styles.contenido_tarjeta}>
+              <Text style={styles.texto_tarjetas}>Días: {item.Dias}</Text>
+              <Text style={styles.texto_tarjetas}>Duración: {item.Duracion}</Text>
+            </View>
+      </View>
+    );
+  };
 
     return(
 
@@ -134,34 +151,14 @@ const Menu_rutinas = ({navigation}) => {
         <Text style={styles.titulo_principal}>Menú de rutinas</Text>
         
         {/* Lista de rutinas guardadas */}
-        <SectionList 
-
-          refreshControl={
-            <RefreshControl
-              refreshing={Refresh}
-              onRefresh = {cargarRutinas}
+          <View style={{flex: 1}}>
+            <FlatList
+              data={rutinas}
+              ItemSeparatorComponent={listViewItemSeparator}
+              keyExtractor={(item, index) => index.toString()}
+              renderItem={({item}) => listItemView(item)}
             />
-          }
-
-          keyExtractor={(item, index) => index.toString()} 
-          sections={rutinas}
-          
-          renderItem = {({ item }) => (
-            <View style={styles.contenido_tarjeta}>
-              <Text style={styles.texto_tarjetas}>Días: {item.Dias}</Text>
-              <Text style={styles.texto_tarjetas}>Duración: {item.Duracion}</Text>
-            </View>
-          )}
-
-          renderSectionHeader = {({section}) => (
-            <Pressable 
-                onPress={()=>{tarjeta_presionada(section.nombre)}}
-                style={style_tarjeta_presionada}
-                >
-                  <Text style={styles.titulo_rutinas}>{section.nombre}</Text>
-            </Pressable>
-          )}
-        />
+          </View>
 
         {/* Contenedor de los dos botones */}
         <View style={styles.contenedor_botones}>
