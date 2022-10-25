@@ -25,6 +25,7 @@ const App = ()  => {
           tabBarInactiveTintColor: "black",
           tabBarActiveTintColor: "#2ba0c8d6",
           tabBarInactiveBackgroundColor: "#e5e5e5",
+          headerShown: route.name !== "Agregar",
           tabBarLabelStyle: {
             fontSize: 14
           },
@@ -74,6 +75,12 @@ const App = ()  => {
         <Tab.Screen
           name="Editar"
           component={Editar_rutinas}
+          options={({route}) => {
+            if(route.name == "Editar")
+            return{
+              headerShown: false
+            }
+          }}
         />
       </Tab.Navigator>
     </NavigationContainer>

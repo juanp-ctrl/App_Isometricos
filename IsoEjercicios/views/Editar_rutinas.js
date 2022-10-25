@@ -12,7 +12,7 @@ import {
 
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import SQLite from 'react-native-sqlite-storage';
-import {NavigationContainer} from '@react-navigation/native';
+
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import Añadir_rutinas from './Añadir_rutinas';
@@ -151,7 +151,7 @@ const Editar_rutinas = ({navigation}) => {
       {/* Boton de añadir rutina */}
       <View style={styles.contenedor_boton_añadir}>
         <TouchableOpacity style={styles.boton_añadir}
-          onPress={()=>{navigation.navigate("Añadir")}}
+          onPress={()=>{navigation.navigate("Agregar")}}
           >
           <FontAwesome5
               name = {"plus"}
@@ -170,14 +170,11 @@ const Editar_rutinas = ({navigation}) => {
     return(
         <Stack.Navigator>
           <Stack.Screen
-          name = "Editar"
+          name = "Editar rutinas"
           component={Vista_editar}
-          options={{
-            header: () => null
-          }}
           />
           <Stack.Screen
-            name = "Añadir"
+            name = "Agregar"
             component={Añadir_rutinas}
           />
         </Stack.Navigator>
