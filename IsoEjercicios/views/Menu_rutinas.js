@@ -13,6 +13,7 @@ import {
 
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import SQLite from 'react-native-sqlite-storage';
+import { useIsFocused, useRoute } from '@react-navigation/native';
 
 const db = SQLite.openDatabase(
   {
@@ -25,6 +26,8 @@ const db = SQLite.openDatabase(
 );
 
 const Menu_rutinas = ({navigation}) => {
+
+  const isFocused = useIsFocused();
   
   const [rutinas, setRutinas] = useState([]);
 
@@ -34,19 +37,39 @@ const Menu_rutinas = ({navigation}) => {
        "SELECT Nombre, Dias, Duracion FROM Rutinas",
        [],
        (tx, results) => {
-        // console.log(results.rows.item(0))
-        // console.log(results.rows.length)
         let temp = [];
         for (let i = 0; i < results.rows.length; i++){
           temp.push(results.rows.item(i));
         }
         setRutinas(temp)
+        console.log(temp)
        })
    })
-   console.log(rutinas)
-  }, []);
+  }, [isFocused]);
 
-  // const [Refresh, setRefresher] = useState(false);
+  const [Refresh, setRefresher] = useState(false);
+
+  // Funcion para actualizar al tener nuevos elementos en la lista
+  const loadNew = () => {
+    setRefresher(true)
+
+    db.transaction((tx) => {
+      tx.executeSql(
+       "SELECT Nombre, Dias, Duracion FROM Rutinas",
+       [],
+       (tx, results) => {
+        let temp = [];
+        for (let i = 0; i < results.rows.length; i++){
+          temp.push(results.rows.item(i));
+        }
+        setRutinas(temp)
+        console.log(temp)
+       })
+   })
+
+   setRefresher(false)
+
+  }
 
   // const cargarRutinas = () => {
   //   setRefresher(true);
@@ -154,6 +177,15 @@ const Menu_rutinas = ({navigation}) => {
           <View style={{flex: 1}}>
             <FlatList
               data={rutinas}
+              extraData={rutinas}
+
+              refreshControl={
+                <RefreshControl
+                  refreshing={Refresh}
+                  onRefresh = {loadNew}
+                />
+              }
+
               ItemSeparatorComponent={listViewItemSeparator}
               keyExtractor={(item, index) => index.toString()}
               renderItem={({item}) => listItemView(item)}

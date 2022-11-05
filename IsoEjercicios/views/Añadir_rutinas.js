@@ -1,4 +1,4 @@
-import React, { cloneElement, useEffect, useState } from 'react';
+import React, { cloneElement, useEffect, useState, useRef  } from 'react';
 import {
   StyleSheet,
   Text,
@@ -6,7 +6,8 @@ import {
   View,
   TextInput,
   FlatList,
-  Pressable
+  Pressable,
+  Alert
 } from 'react-native';
 
 import SQLite from 'react-native-sqlite-storage';
@@ -16,12 +17,17 @@ const db = SQLite.openDatabase(
     name: "database.db",
     createFromLocation: "~www/database.db",
   },
-  ()=>{console.log("bien hecho")},
+  ()=>{console.log("connection")},
   error => {console.log(error)}
 
 );
 
 const Añadir_rutinas = ({navigation}) => {
+
+  const [tiempoGlobal, setTiempoGlobal] = useState(0)
+  const [nombreRutina, setNombreRutina] = useState("")
+  const [diasRutina, setDiasRutina] = useState("")
+  const lista_ejercicios = useRef();
 
   const [ejercicios, setEjercicios] = useState([]);
 
@@ -31,28 +37,71 @@ const Añadir_rutinas = ({navigation}) => {
        "SELECT Id_ejercicios, Nombre, Duracion, Grupo_muscular FROM Ejercicios",
        [],
        (tx, results) => {
-        // console.log(results.rows.item(0))
-        // console.log(results.rows.length)
         let temp = [];
         for (let i = 0; i < results.rows.length; i++){
-          temp.push(results.rows.item(i));
+          let datos = {...results.rows.item(i),...{presd: false}}
+          temp.push(datos);
         }
         setEjercicios(temp)
        })
    })
-   console.log(ejercicios)
   }, []);
 
-  let onpres = false;
+  const setRutina = async (nombreRutina) => {
+    if(nombreRutina.length == 0 || diasRutina.length == 0 || tiempoGlobal == 0){
+      Alert.alert("Atención", "Antes de añadir una rutina dale un nombre, los dias a entrenar y selecciona al menos un ejercicio.")
+      console.log("wtf")
+    }
+    else{
+      try {
 
-  const tarjeta_presionada = (nombre) => {
-    console.log(nombre)
-    onpres = !onpres
-    console.log(onpres)
+        await db.transaction(async (tx) => {
+          await tx.executeSql(
+            "INSERT INTO Rutinas (Nombre, Dias, Duracion) VALUES (?,?,?)",
+            [nombreRutina, diasRutina, tiempoGlobal]
+          )
+        })
+
+        setNombreRutina("")
+        setDiasRutina("")
+        setTiempoGlobal(0)
+
+        let newArr = ejercicios.map( obj => {
+            return {...obj, presd: false};
+        })
+
+        setEjercicios(newArr)
+
+        Alert.alert("Nueva rutina añadida!", `La rutina ${nombreRutina} se ha añadido con exito.`)
+        lista_ejercicios.current.scrollToIndex({index: 0})
+        navigation.navigate("Ejercitarse", {
+          
+        })
+  
+      } catch (error) {
+        console.log(error)
+      }
+    }
   }
 
-  const style_tarjeta_presionada = () => {
-    if(onpres == false){
+  const tarjeta_presionada = (id) => {
+    let newArr = ejercicios.map( obj => {
+      if(obj.Id_ejercicios === id){
+        if(obj.presd == false){
+          setTiempoGlobal(tiempoGlobal+obj.Duracion)
+        }
+        else if(obj.presd == true){
+          setTiempoGlobal(tiempoGlobal-obj.Duracion)
+        }
+        return {...obj, presd: !obj.presd}
+      }
+      return obj;
+    })
+    setEjercicios(newArr)
+  }
+
+  const style_tarjeta_presionada = (value) => {
+    if(value == false){
       return{
         backgroundColor: "#60477eeb",
         marginLeft: 20,
@@ -62,7 +111,7 @@ const Añadir_rutinas = ({navigation}) => {
         borderTopEndRadius: 20
       }
     }
-    else if(onpres == true){
+    else if(value == true){
       return{
         backgroundColor: "#7887bec4",
         marginLeft: 10,
@@ -88,8 +137,8 @@ const Añadir_rutinas = ({navigation}) => {
     return (
       <View>
           <Pressable 
-                onPress={()=>{tarjeta_presionada(item.Nombre)}}
-                style={style_tarjeta_presionada}
+                onPress={()=>{tarjeta_presionada(item.Id_ejercicios)}}
+                style={style_tarjeta_presionada(item.presd)}
                 >
                   <Text style={styles.titulo_rutinas}>{item.Nombre}</Text>
             </Pressable>
@@ -113,7 +162,8 @@ const Añadir_rutinas = ({navigation}) => {
           <TextInput
             style={styles.entrada}
             placeholder='Nombre de mi rutina'
-            onChangeText = {(e) => console.log(route.name)}
+            onChangeText = {(e) => setNombreRutina(e)}
+            value={nombreRutina}
           />
         </View>
 
@@ -123,7 +173,8 @@ const Añadir_rutinas = ({navigation}) => {
           <TextInput
             style={styles.entrada}
             placeholder='Lunes-Miercoles'
-            onChangeText = {(e) => console.log(route.name)}
+            onChangeText = {(e) => setDiasRutina(e)}
+            value={diasRutina}
           />
         </View>
 
@@ -131,6 +182,8 @@ const Añadir_rutinas = ({navigation}) => {
         <View style={{flex: 1}}>
             <FlatList
               data={ejercicios}
+              ref={lista_ejercicios}
+              extraData={ejercicios}
               ItemSeparatorComponent={listViewItemSeparator}
               keyExtractor={(item, index) => index.toString()}
               renderItem={({item}) => listItemView(item)}
@@ -143,12 +196,12 @@ const Añadir_rutinas = ({navigation}) => {
           {/* Duracion total de la rutina */}
           <View style={styles.contenedor_duracion}>
             <Text style={styles.texto_duracion}>Duración:</Text>
-            <Text style={styles.texto_numero_duracion}>0</Text>
+            <Text style={styles.texto_numero_duracion}>{tiempoGlobal} Minutos</Text>
           </View>
 
           {/* Boton de añadir rutina */}
           <View style={styles.contenedor_añadir}>
-              <TouchableOpacity style={styles.boton_añadir} onPress={() => {navigation.navigate("Editar rutinas")}}>
+              <TouchableOpacity style={styles.boton_añadir} onPress={() => {setRutina(nombreRutina)}}>
                 <Text style={styles.texto_boton_añadir}>Añadir rutina</Text>
               </TouchableOpacity>
             </View>
