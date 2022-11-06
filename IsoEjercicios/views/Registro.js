@@ -6,10 +6,10 @@ import {
   View,
 } from 'react-native';
 
-const Calendario = ({navigation}) => {
+const Registro = ({navigation}) => {
     return(
       <View style={styles.body}>
-        <Text style={styles.texto}>Calendario</Text>
+        <Text style={styles.texto}>Registro de actividad</Text>
       </View>
     )
   }
@@ -19,7 +19,11 @@ const Calendario = ({navigation}) => {
       flex: 1,
       justifyContent: "center",
       alignItems: "center",
-      backgroundColor: "#b2e5e5"
+      backgroundColor: "#c7e9ea",
+      borderTopEndRadius: 35,
+      borderTopLeftRadius: 35,
+      zIndex: 1,
+      marginTop: -30
     },
     texto:{
       color: "black",
@@ -33,4 +37,4 @@ const Calendario = ({navigation}) => {
     }
   });
 
-  export default Calendario;
+  export default Registro;

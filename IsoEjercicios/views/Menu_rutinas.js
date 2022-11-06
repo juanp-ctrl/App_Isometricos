@@ -20,7 +20,7 @@ const db = SQLite.openDatabase(
     name: "database.db",
     createFromLocation: "~www/database.db",
   },
-  ()=>{console.log("bien hecho")},
+  ()=>{console.log("conexion - ejercitarse")},
   error => {console.log(error)}
 
 );
@@ -42,10 +42,9 @@ const Menu_rutinas = ({navigation}) => {
           temp.push(results.rows.item(i));
         }
         setRutinas(temp)
-        console.log(temp)
        })
    })
-  }, [isFocused]);
+  }, [isFocused]);  //Pasamos como dependecia el valor que nos indica si la vista se está mostrando
 
   const [Refresh, setRefresher] = useState(false);
 
@@ -63,50 +62,11 @@ const Menu_rutinas = ({navigation}) => {
           temp.push(results.rows.item(i));
         }
         setRutinas(temp)
-        console.log(temp)
        })
    })
 
    setRefresher(false)
-
   }
-
-  // const cargarRutinas = () => {
-  //   setRefresher(true);
-  //   db.transaction((tx) => {
-  //     tx.executeSql(
-  //       "SELECT Nombre, Dias, Duracion FROM Rutinas",
-  //       [],
-  //       (tx, results) => {
-  //         let len = results.rows.length;
-  //         if(len > 0){
-  //           console.log(len)
-  //           for (let i = 0; i <= results.rows.length; i++) {
-  //             setRutinas([...rutinas,
-  //               { nombre: results.rows.item(i).Nombre,
-  //               data : [
-  //                 {Dias: results.rows.item(i).Dias, 
-  //                 Duracion: results.rows.item(i).Duracion}
-  //               ]}]);
-  //           }
-  //         }
-  //       }
-  //     )
-  //   })
-  //   setRefresher(false);
-  // }
-
-
-  // const actualizar = () => {
-  //   setRefresher(true);
-  //   setRutinas([...rutinas,
-  //     { nombre: "Rutina "+(rutinas.length+1),
-  //     data : [
-  //       {Dias: `${"L - X - V"}`, 
-  //       Duracion: `${30} minutos`}
-  //     ]}]);
-  //   setRefresher(false);
-  // }
 
   let onpres = false;
 
@@ -145,7 +105,7 @@ const Menu_rutinas = ({navigation}) => {
 
   let listViewItemSeparator = () => {
     return (
-      <View style={{height: 0.2, width: '100%', backgroundColor: '#808080'}} />
+      <View style={{height: 0, width: '100%', backgroundColor: '#808080'}} />
     );
   };
 
@@ -170,8 +130,6 @@ const Menu_rutinas = ({navigation}) => {
 
       //Vista contenedora principal
       <View style={styles.body}> 
-        {/* Titulo de menu de rutinas */}
-        <Text style={styles.titulo_principal}>Menú de rutinas</Text>
         
         {/* Lista de rutinas guardadas */}
           <View style={{flex: 1}}>
@@ -223,7 +181,11 @@ const Menu_rutinas = ({navigation}) => {
   const styles = StyleSheet.create({
     body:{
       flex: 1,
-      backgroundColor: "#b2e5e5ad"
+      backgroundColor: "#c7e9ea",
+      borderTopEndRadius: 35,
+      borderTopLeftRadius: 35,
+      zIndex: 1,
+      marginTop: -30  //Logramos el efecto de sobreponer la tarjeta de contenidos
     },
     titulo_principal:{
       color: "black",

@@ -11,13 +11,15 @@ import {
 } from 'react-native';
 
 import SQLite from 'react-native-sqlite-storage';
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import TituloPrincipal from '../components/TituloPrincipal';
 
 const db = SQLite.openDatabase(
   {
     name: "database.db",
     createFromLocation: "~www/database.db",
   },
-  ()=>{console.log("connection")},
+  ()=>{console.log("conexion - añadir")},
   error => {console.log(error)}
 
 );
@@ -39,18 +41,18 @@ const Añadir_rutinas = ({navigation}) => {
        (tx, results) => {
         let temp = [];
         for (let i = 0; i < results.rows.length; i++){
-          let datos = {...results.rows.item(i),...{presd: false}}
+          let datos = {...results.rows.item(i),...{presd: false}}   //Concatenamos un booleano llamado presd que usamos para indicar si una tarjeta se ha seleccionado
           temp.push(datos);
         }
-        setEjercicios(temp)
+        setEjercicios(temp)   //Guardamos en el arreglo original los valores de la base de datos
        })
    })
   }, []);
 
+  //Funcion para almacenar la nueva rutina en la base de datos
   const setRutina = async (nombreRutina) => {
-    if(nombreRutina.length == 0 || diasRutina.length == 0 || tiempoGlobal == 0){
+    if(nombreRutina.length == 0 || diasRutina.length == 0 || tiempoGlobal == 0){    //Control de envio de elementos vacios
       Alert.alert("Atención", "Antes de añadir una rutina dale un nombre, los dias a entrenar y selecciona al menos un ejercicio.")
-      console.log("wtf")
     }
     else{
       try {
@@ -62,21 +64,21 @@ const Añadir_rutinas = ({navigation}) => {
           )
         })
 
+        //Reseteamos los valores de los input y del tiempo global
         setNombreRutina("")
         setDiasRutina("")
         setTiempoGlobal(0)
 
+        //Deseleccionamos todas las tarjetas
         let newArr = ejercicios.map( obj => {
             return {...obj, presd: false};
         })
-
         setEjercicios(newArr)
 
+        //Mensaje de aviso de rutina agregada con exito
         Alert.alert("Nueva rutina añadida!", `La rutina ${nombreRutina} se ha añadido con exito.`)
         lista_ejercicios.current.scrollToIndex({index: 0})
-        navigation.navigate("Ejercitarse", {
-          
-        })
+        navigation.navigate("Ejercitarse")
   
       } catch (error) {
         console.log(error)
@@ -84,6 +86,9 @@ const Añadir_rutinas = ({navigation}) => {
     }
   }
 
+  //Funcion que encuentra el elemento del arreglo de ejercicios apartir del id dado 
+  //incrementa o decrementa el tiempo total de la rutina
+  //y alterna el valor del booleano presd del elemento encontrado
   const tarjeta_presionada = (id) => {
     let newArr = ejercicios.map( obj => {
       if(obj.Id_ejercicios === id){
@@ -100,6 +105,7 @@ const Añadir_rutinas = ({navigation}) => {
     setEjercicios(newArr)
   }
 
+  //Estilos dependiendo del estado de seleccion de la tarjeta
   const style_tarjeta_presionada = (value) => {
     if(value == false){
       return{
@@ -151,76 +157,119 @@ const Añadir_rutinas = ({navigation}) => {
   };
 
     return(
+      <View style={styles.super_body}>
+
+        <TituloPrincipal titulo={"Agregar"}/>
+
         <View style={styles.body}> 
 
-        {/* Titulo de añadir rutina */}
-        <Text style={styles.titulo_principal}>Nueva Rutina!</Text>
+          {/* Seccion boton de retroceder y subtitulo */}
+          <View style={styles.contenedor_seccion_titulo}>
 
-        {/* Entrada del nombre de la rutina */}
-        <View style={styles.contenedor_input}>
-          <Text style={styles.nombre_input}>Nombre:</Text>
-          <TextInput
-            style={styles.entrada}
-            placeholder='Nombre de mi rutina'
-            onChangeText = {(e) => setNombreRutina(e)}
-            value={nombreRutina}
-          />
-        </View>
+            <TouchableOpacity style={styles.boton_go_back}
+                onPress={()=>{navigation.navigate("Editar rutinas")}}
+                >
+                <FontAwesome5
+                    name = {"chevron-left"}
+                    size = {14}
+                    color = {"black"}
+                    style = {styles.icono_go_back}
+                  />
+            </TouchableOpacity>
 
-        {/* Entrada de los dias de la rutina */}
-        <View style={styles.contenedor_input}>
-          <Text style={styles.nombre_input}>Dias:</Text>
-          <TextInput
-            style={styles.entrada}
-            placeholder='Lunes-Miercoles'
-            onChangeText = {(e) => setDiasRutina(e)}
-            value={diasRutina}
-          />
-        </View>
-
-        {/* Lista de ejercicios a elegir */}
-        <View style={{flex: 1}}>
-            <FlatList
-              data={ejercicios}
-              ref={lista_ejercicios}
-              extraData={ejercicios}
-              ItemSeparatorComponent={listViewItemSeparator}
-              keyExtractor={(item, index) => index.toString()}
-              renderItem={({item}) => listItemView(item)}
-            />
-        </View>
-
-        {/* Contenedor de los dos elementos */}
-        <View style={styles.contenedor_duracion_boton}>
-
-          {/* Duracion total de la rutina */}
-          <View style={styles.contenedor_duracion}>
-            <Text style={styles.texto_duracion}>Duración:</Text>
-            <Text style={styles.texto_numero_duracion}>{tiempoGlobal} Minutos</Text>
+            {/* Titulo de añadir rutina */}
+            <Text style={styles.titulo_principal}>Nueva Rutina!</Text>
+          
           </View>
 
-          {/* Boton de añadir rutina */}
-          <View style={styles.contenedor_añadir}>
-              <TouchableOpacity style={styles.boton_añadir} onPress={() => {setRutina(nombreRutina)}}>
-                <Text style={styles.texto_boton_añadir}>Añadir rutina</Text>
-              </TouchableOpacity>
+          {/* Entrada del nombre de la rutina */}
+          <View style={styles.contenedor_input}>
+            <Text style={styles.nombre_input}>Nombre:</Text>
+            <TextInput
+              style={styles.entrada}
+              placeholder='Nombre de mi rutina'
+              onChangeText = {(e) => setNombreRutina(e)}
+              value={nombreRutina}
+            />
+          </View>
+
+          {/* Entrada de los dias de la rutina */}
+          <View style={styles.contenedor_input_dias}>
+            <Text style={styles.nombre_input}>Dias:</Text>
+            <TextInput
+              style={styles.entrada}
+              placeholder='Lunes-Miercoles'
+              onChangeText = {(e) => setDiasRutina(e)}
+              value={diasRutina}
+            />
+          </View>
+
+          {/* Lista de ejercicios a elegir */}
+          <View style={{flex: 1}}>
+              <FlatList
+                data={ejercicios}
+                ref={lista_ejercicios}
+                extraData={ejercicios}
+                ItemSeparatorComponent={listViewItemSeparator}
+                keyExtractor={(item, index) => index.toString()}
+                renderItem={({item}) => listItemView(item)}
+              />
+          </View>
+
+          {/* Contenedor de los dos elementos */}
+          <View style={styles.contenedor_duracion_boton}>
+
+            {/* Duracion total de la rutina */}
+            <View style={styles.contenedor_duracion}>
+              <Text style={styles.texto_duracion}>Duración:</Text>
+              <Text style={styles.texto_numero_duracion}>{tiempoGlobal} Minutos</Text>
             </View>
 
-        </View>
+            {/* Boton de añadir rutina */}
+            <View style={styles.contenedor_añadir}>
+                <TouchableOpacity style={styles.boton_añadir} onPress={() => {setRutina(nombreRutina)}}>
+                  <Text style={styles.texto_boton_añadir}>Añadir rutina</Text>
+                </TouchableOpacity>
+            </View>
 
-      </View>
-    )
+          </View>
+
+        </View>
+      </View>)
   }
 
   const styles = StyleSheet.create({
+    super_body:{
+      flex: 1,
+    },
     body:{
-        flex: 1,
-        backgroundColor: "#b2e5e5ad"
-      },
+      flex: 1,
+      backgroundColor: "#c7e9ea",
+      borderTopEndRadius: 35,
+      borderTopLeftRadius: 35,
+      marginTop: -30,
+      zIndex: 1
+    },
+    icono_go_back:{
+      padding: 5,
+      paddingLeft: 10
+    },
+    contenedor_seccion_titulo:{
+      flexDirection: "row"
+    },
+    boton_go_back:{
+      marginLeft: 20,
+      marginTop: 18,
+      padding: 5,
+      width: 40,
+      height: 38,
+      backgroundColor: "white",
+      borderRadius: 30
+    },
     titulo_principal:{
         color: "black",
         paddingTop: 20,
-        paddingLeft: 25,
+        paddingLeft: 30,
         paddingBottom: 10,
         fontSize: 24
       },
@@ -236,8 +285,15 @@ const Añadir_rutinas = ({navigation}) => {
       paddingTop: 10,
       paddingLeft: 25,
     },
+    contenedor_input_dias:{
+      flexDirection: "row",
+      alignItems: "center",
+      paddingTop: 10,
+      paddingLeft: 25,
+      paddingBottom: 15
+    },
     nombre_input:{
-      fontSize: 18,
+      fontSize: 17,
       color: "black"
     },
     entrada: {
@@ -270,7 +326,7 @@ const Añadir_rutinas = ({navigation}) => {
       borderBottomRightRadius: 10
     },
     texto_tarjetas:{
-      fontSize: 17,
+      fontSize: 16,
       color: "black",
       paddingBottom: 3,
       paddingTop: 3
@@ -278,7 +334,7 @@ const Añadir_rutinas = ({navigation}) => {
     titulo_rutinas: {
       color: "white",
       margin: 14,
-      fontSize: 27
+      fontSize: 24
     },
     contenedor_duracion_boton:{
       flexDirection: 'row'

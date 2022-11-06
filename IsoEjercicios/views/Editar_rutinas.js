@@ -16,13 +16,14 @@ import SQLite from 'react-native-sqlite-storage';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import Añadir_rutinas from './Añadir_rutinas';
+import TituloPrincipal from '../components/TituloPrincipal';
 
 const db = SQLite.openDatabase(
   {
     name: "database.db",
     createFromLocation: "~www/database.db",
   },
-  ()=>{console.log("bien hecho")},
+  ()=>{console.log("conexion - editar")},
   error => {console.log(error)}
 
 );
@@ -37,8 +38,6 @@ const Editar_rutinas = ({navigation}) => {
        "SELECT Nombre, Dias, Duracion FROM Rutinas",
        [],
        (tx, results) => {
-        // console.log(results.rows.item(0))
-        // console.log(results.rows.length)
         let temp = [];
         for (let i = 0; i < results.rows.length; i++){
           temp.push(results.rows.item(i));
@@ -46,7 +45,6 @@ const Editar_rutinas = ({navigation}) => {
         setRutinas(temp)
        })
    })
-   console.log(rutinas)
   }, []);
 
   let onpres = false;
@@ -82,7 +80,7 @@ const Editar_rutinas = ({navigation}) => {
 
   let listViewItemSeparator = () => {
     return (
-      <View style={{height: 0.2, width: '100%', backgroundColor: '#808080'}} />
+      <View style={{height: 0, width: '100%', backgroundColor: '#808080'}} />
     );
   };
 
@@ -130,61 +128,74 @@ const Editar_rutinas = ({navigation}) => {
   const Stack = createNativeStackNavigator();
 
   const Vista_editar = () => {
-    return(//Vista contenedora de editar rutinas
-    <View style={styles.body}> 
-    {/* Titulo de editar rutinas */}
-    <Text style={styles.titulo_principal}>Rutinas</Text>
-    
-    {/* Lista de rutinas guardadas */}
-    <View style={{flex: 1}}>
-        <FlatList style={styles.lista}
-          data={rutinas}
-          ItemSeparatorComponent={listViewItemSeparator}
-          keyExtractor={(item, index) => index.toString()}
-          renderItem={({item}) => listItemView(item)}
-        />
-    </View>
+    return(
+    <View style={styles.super_body}>
 
-    {/* Contenedor del boton de añadir rutina */}
-    <View style={styles.contenedor_botones}>
-
-      {/* Boton de añadir rutina */}
-      <View style={styles.contenedor_boton_añadir}>
-        <TouchableOpacity style={styles.boton_añadir}
-          onPress={()=>{navigation.navigate("Agregar")}}
-          >
-          <FontAwesome5
-              name = {"plus"}
-              size = {25}
-              color = {"black"}
-              style = {styles.icono_boton_añadir}
+      <TituloPrincipal titulo={"Editar"}/>
+      
+      {/* Vista contenedora de editar rutinas */}
+      <View style={styles.body}> 
+        
+        {/* Lista de rutinas guardadas */}
+        <View style={{flex: 1}}>
+            <FlatList style={styles.lista}
+              data={rutinas}
+              ItemSeparatorComponent={listViewItemSeparator}
+              keyExtractor={(item, index) => index.toString()}
+              renderItem={({item}) => listItemView(item)}
             />
-        </TouchableOpacity>
-      </View>
+        </View>
+
+        {/* Contenedor del boton de añadir rutina */}
+        <View style={styles.contenedor_botones}>
+
+          {/* Boton de añadir rutina */}
+          <View style={styles.contenedor_boton_añadir}>
+            <TouchableOpacity style={styles.boton_añadir}
+              onPress={()=>{navigation.navigate("Agregar")}}
+              >
+              <FontAwesome5
+                  name = {"plus"}
+                  size = {25}
+                  color = {"black"}
+                  style = {styles.icono_boton_añadir}
+                />
+            </TouchableOpacity>
+          </View>
+
+        </View>
 
       </View>
-
     </View>)
   }
 
     return(
         <Stack.Navigator>
-          <Stack.Screen
+          <Stack.Screen 
           name = "Editar rutinas"
           component={Vista_editar}
+          options={{headerShown: false}}
           />
           <Stack.Screen
             name = "Agregar"
             component={Añadir_rutinas}
+            options={{headerShown: false}}
           />
         </Stack.Navigator>
     )
   }
 
   const styles = StyleSheet.create({
+    super_body:{
+      flex: 1,
+    },
     body:{
       flex: 1,
-      backgroundColor: "#b2e5e5ad"
+      backgroundColor: "#c7e9ea",
+      borderTopEndRadius: 35,
+      borderTopLeftRadius: 35,
+      marginTop: -30,
+      zIndex: 1
     },
     titulo_principal:{
       color: "black",

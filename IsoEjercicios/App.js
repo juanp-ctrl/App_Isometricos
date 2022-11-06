@@ -1,15 +1,22 @@
 import React from 'react';
 
+import {
+  StyleSheet, Text, View,
+} from 'react-native';
+
 //Libreria de navegacion
 import {NavigationContainer} from '@react-navigation/native';
 //El metodo de navegacion por tabs
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 //Libreria de iconos
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import LinearGradient from 'react-native-linear-gradient';
 
 import Menu_rutinas from './views/Menu_rutinas';
 import Editar_rutinas from './views/Editar_rutinas';
-import Calendario from './views/Calendario';
+import Registro from './views/Registro';
+
+import TituloPrincipal from './components/TituloPrincipal';
 
 //Aplicacion principal
 const App = ()  => {
@@ -47,8 +54,8 @@ const App = ()  => {
               size = focused ? 25 : 20;
               color = color;
             }
-            else if (route.name === "Calendario"){
-              iconName = "calendar";
+            else if (route.name === "Registro"){
+              iconName = "heartbeat";
               size = focused ? 25 : 20;
               color = color;
             }
@@ -64,23 +71,19 @@ const App = ()  => {
       }
       >
         <Tab.Screen
-          name="Calendario"
-          component={Calendario}
+          name="Registro"
+          component={Registro}
+          options={{header: () => <TituloPrincipal titulo={"Actividad"}/>}}
         />
         <Tab.Screen
           name="Ejercitarse"
           component={Menu_rutinas}
-          // options={{tabBarBadge: 1}}
+          options={{header: () => <TituloPrincipal titulo={"Rutinas"}/>}}
         />
         <Tab.Screen
           name="Editar"
           component={Editar_rutinas}
-          options={({route}) => {
-            if(route.name == "Editar")
-            return{
-              headerShown: false
-            }
-          }}
+          options={{headerShown: false}}
         />
       </Tab.Navigator>
     </NavigationContainer>
