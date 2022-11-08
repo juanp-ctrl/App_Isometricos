@@ -26,7 +26,7 @@ const App = ()  => {
   return (
     <NavigationContainer>
       <Tab.Navigator 
-        initialRouteName='Ejercitarse'  
+        initialRouteName='Rutinas'  
         screenOptions={({route}) => ({
 
           tabBarInactiveTintColor: "black",
@@ -45,7 +45,7 @@ const App = ()  => {
           // Control de los iconos de las tabs
           tabBarIcon: ({ focused, size, color }) =>{
             let iconName;
-            if (route.name === "Ejercitarse"){
+            if (route.name === "Rutinas"){
               iconName = "stopwatch";
               size = focused ? 25 : 20;
               color = color;
@@ -76,9 +76,9 @@ const App = ()  => {
           options={{header: () => <TituloPrincipal titulo={"Actividad"}/>}}
         />
         <Tab.Screen
-          name="Ejercitarse"
+          name="Rutinas"
           component={Menu_rutinas}
-          options={{header: () => <TituloPrincipal titulo={"Rutinas"}/>}}
+          options={{headerShown: false}}
         />
         <Tab.Screen
           name="Editar"

@@ -8,12 +8,16 @@ import {
   View,
   Pressable,
   SafeAreaView,
-  FlatList
+  FlatList,
+  Alert
 } from 'react-native';
 
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import SQLite from 'react-native-sqlite-storage';
 import { useIsFocused, useRoute } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import Rutina_detalle from './Rutina_detalle';
+import TituloPrincipal from '../components/TituloPrincipal';
 
 const db = SQLite.openDatabase(
   {
@@ -30,20 +34,26 @@ const Menu_rutinas = ({navigation}) => {
   const isFocused = useIsFocused();
   
   const [rutinas, setRutinas] = useState([]);
+  const [TarjetaSeleccionada, setTarjetaSeleccionada] = useState(0);
+  const [NumTarjeta, setNumTarjeta] = useState(0);
 
   useEffect(() => {
     db.transaction((tx) => {
       tx.executeSql(
-       "SELECT Nombre, Dias, Duracion FROM Rutinas",
+       "SELECT * FROM Rutinas",
        [],
        (tx, results) => {
         let temp = [];
         for (let i = 0; i < results.rows.length; i++){
-          temp.push(results.rows.item(i));
+          let datos = {...results.rows.item(i),...{presd: false}}   //Concatenamos un booleano llamado presd que usamos para indicar si una tarjeta se ha seleccionado
+          temp.push(datos);
+          console.log(datos)
         }
         setRutinas(temp)
        })
    })
+   setTarjetaSeleccionada(0)
+   setNumTarjeta(0)
   }, [isFocused]);  //Pasamos como dependecia el valor que nos indica si la vista se está mostrando
 
   const [Refresh, setRefresher] = useState(false);
@@ -54,12 +64,13 @@ const Menu_rutinas = ({navigation}) => {
 
     db.transaction((tx) => {
       tx.executeSql(
-       "SELECT Nombre, Dias, Duracion FROM Rutinas",
+       "SELECT * FROM Rutinas",
        [],
        (tx, results) => {
         let temp = [];
         for (let i = 0; i < results.rows.length; i++){
-          temp.push(results.rows.item(i));
+          let datos = {...results.rows.item(i),...{presd: false}}   //Concatenamos un booleano llamado presd que usamos para indicar si una tarjeta se ha seleccionado
+          temp.push(datos);
         }
         setRutinas(temp)
        })
@@ -68,16 +79,35 @@ const Menu_rutinas = ({navigation}) => {
    setRefresher(false)
   }
 
-  let onpres = false;
+  const tarjeta_presionada = (id) => {
 
-  const tarjeta_presionada = (nombre) => {
-    console.log(nombre)
-    onpres = !onpres
-    console.log(onpres)
-  }
+      let newArr = rutinas.map( obj => {
+        if(obj.Id_rutina === id){
+          if(TarjetaSeleccionada == id){
+            setNumTarjeta(0)
+            setTarjetaSeleccionada(0)
+            return {...obj, presd: !obj.presd}
+          }
+          else{
+            let idtemp = TarjetaSeleccionada
+            setTarjetaSeleccionada(id)
+            if(NumTarjeta < 1){
+              setNumTarjeta(1)
+              return {...obj, presd: !obj.presd}
+            }
+            else{
+              setTarjetaSeleccionada(idtemp)
+              console.log("Ya hay una tarjeta seleccionada")
+            }
+          }
+        }
+        return obj;
+      })
+      setRutinas(newArr)  
+    }
 
-  const style_tarjeta_presionada = () => {
-    if(onpres == false){
+  const style_tarjeta_presionada = (value) => {
+    if(value == false){
       return{
         backgroundColor: "#60477eeb",
         marginLeft: 20,
@@ -87,7 +117,7 @@ const Menu_rutinas = ({navigation}) => {
         borderTopEndRadius: 20
       }
     }
-    else if(onpres == true){
+    else if(value == true){
       return{
         backgroundColor: "#7887bec4",
         marginLeft: 10,
@@ -113,8 +143,8 @@ const Menu_rutinas = ({navigation}) => {
     return (
       <View>
           <Pressable 
-                onPress={()=>{tarjeta_presionada(item.Nombre)}}
-                style={style_tarjeta_presionada}
+                onPress={()=>{tarjeta_presionada(item.Id_rutina)}}
+                style={style_tarjeta_presionada(item.presd)}
                 >
                   <Text style={styles.titulo_rutinas}>{item.Nombre}</Text>
             </Pressable>
@@ -126,66 +156,101 @@ const Menu_rutinas = ({navigation}) => {
     );
   };
 
+  const Stack = createNativeStackNavigator();
+
+  const Vista_home = () => {
+
     return(
 
       //Vista contenedora principal
-      <View style={styles.body}> 
-        
-        {/* Lista de rutinas guardadas */}
-          <View style={{flex: 1}}>
-            <FlatList
-              data={rutinas}
-              extraData={rutinas}
+      <View style={styles.super_body}>
 
-              refreshControl={
-                <RefreshControl
-                  refreshing={Refresh}
-                  onRefresh = {loadNew}
+        <TituloPrincipal titulo={"Rutinas"}/>
+
+          <View style={styles.body}> 
+            
+            {/* Lista de rutinas guardadas */}
+              <View style={{flex: 1}}>
+                <FlatList
+                  data={rutinas}
+                  extraData={rutinas}
+
+                  refreshControl={
+                    <RefreshControl
+                      refreshing={Refresh}
+                      onRefresh = {loadNew}
+                    />
+                  }
+
+                  ItemSeparatorComponent={listViewItemSeparator}
+                  keyExtractor={(item, index) => index.toString()}
+                  renderItem={({item}) => listItemView(item)}
                 />
-              }
+              </View>
 
-              ItemSeparatorComponent={listViewItemSeparator}
-              keyExtractor={(item, index) => index.toString()}
-              renderItem={({item}) => listItemView(item)}
-            />
+            {/* Contenedor de los dos botones */}
+            <View style={styles.contenedor_botones}>
+
+              {/* Boton de añadir rutina */}
+              <View style={styles.contenedor_añadir}>
+                <TouchableOpacity style={styles.boton_añadir} onPress={() => {navigation.navigate("Editar", {screen: "Agregar"})}}>
+                  <Text style={styles.texto_boton_añadir}>Añadir rutina</Text>
+                </TouchableOpacity>
+              </View>
+
+              {/* Boton de play */}
+              <View style={styles.contenedor_play}>
+                <TouchableOpacity style={styles.boton_play} onPress={() => {
+                  if(NumTarjeta > 0){
+                    navigation.navigate("Detalles rutina", {id: TarjetaSeleccionada})
+                  }
+                  else{
+                    Alert.alert("Atención", `Debes de seleccionar al menos una rutina.`)
+                  }
+                }}>
+                  <FontAwesome5
+                      name = {"play"}
+                      size = {18}
+                      color = {"black"}
+                      style = {styles.icono_boton_play}
+                    />
+                </TouchableOpacity>
+              </View>
+
+            </View>
+
           </View>
-
-        {/* Contenedor de los dos botones */}
-        <View style={styles.contenedor_botones}>
-
-          {/* Boton de añadir rutina */}
-          <View style={styles.contenedor_añadir}>
-            <TouchableOpacity style={styles.boton_añadir} onPress={() => {navigation.navigate("Editar")}}>
-              <Text style={styles.texto_boton_añadir}>Añadir rutina</Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Boton de play */}
-          <View style={styles.contenedor_play}>
-            <TouchableOpacity style={styles.boton_play}>
-              <FontAwesome5
-                  name = {"play"}
-                  size = {18}
-                  color = {"black"}
-                  style = {styles.icono_boton_play}
-                />
-            </TouchableOpacity>
-          </View>
-
-        </View>
-
       </View>
     )
   }
 
+  return(
+    <Stack.Navigator>
+      <Stack.Screen 
+        name = "Home"
+        component={Vista_home}
+        options={{headerShown: false}}
+        />
+      <Stack.Screen
+        name = "Detalles rutina"
+        component={Rutina_detalle}
+        options={{headerShown: false}}
+        />
+      </Stack.Navigator>
+  )
+  }
+
   const styles = StyleSheet.create({
+    super_body:{
+      flex: 1,
+    },
     body:{
       flex: 1,
       backgroundColor: "#c7e9ea",
       borderTopEndRadius: 35,
       borderTopLeftRadius: 35,
-      zIndex: 1,
-      marginTop: -30  //Logramos el efecto de sobreponer la tarjeta de contenidos
+      marginTop: -30,
+      zIndex: 1
     },
     titulo_principal:{
       color: "black",

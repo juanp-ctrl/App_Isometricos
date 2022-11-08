@@ -29,6 +29,7 @@ const Añadir_rutinas = ({navigation}) => {
   const [tiempoGlobal, setTiempoGlobal] = useState(0)
   const [nombreRutina, setNombreRutina] = useState("")
   const [diasRutina, setDiasRutina] = useState("")
+  const [idRutinaTemp, setIdRutinaTemp] = useState(0)
   const lista_ejercicios = useRef();
 
   const [ejercicios, setEjercicios] = useState([]);
@@ -58,10 +59,32 @@ const Añadir_rutinas = ({navigation}) => {
       try {
 
         await db.transaction(async (tx) => {
+          //Insertamos en la Tabla Rutinas la información de la nueva rutina
           await tx.executeSql(
             "INSERT INTO Rutinas (Nombre, Dias, Duracion) VALUES (?,?,?)",
-            [nombreRutina, diasRutina, tiempoGlobal]
-          )
+            [nombreRutina, diasRutina, tiempoGlobal],
+            (tx, res) => {
+              //Obtenemos el id de la rutina agregada
+              tx.executeSql(
+                "SELECT Id_rutina FROM Rutinas WHERE Nombre=?",
+                [nombreRutina],
+                (tx, res) => {
+                  let NumRutina = res.rows.item(0).Id_rutina
+                  console.log(NumRutina)
+                  //Insertamos en la tabla de ejercicios por rutina los ejercicios seleccionados
+                  for(let i=0; i<ejercicios.length; i++){
+                    if(ejercicios[i].presd == true){
+                      tx.executeSql(
+                        "INSERT INTO Ejercicios_rut (Id_rutina, Id_ejercicio) VALUES (?,?)",
+                        [NumRutina, ejercicios[i].Id_ejercicios]
+                      )
+                      console.log("Agregado")
+                    }
+                  }
+                }
+              )
+            }
+          );
         })
 
         //Reseteamos los valores de los input y del tiempo global
@@ -78,7 +101,7 @@ const Añadir_rutinas = ({navigation}) => {
         //Mensaje de aviso de rutina agregada con exito
         Alert.alert("Nueva rutina añadida!", `La rutina ${nombreRutina} se ha añadido con exito.`)
         lista_ejercicios.current.scrollToIndex({index: 0})
-        navigation.navigate("Ejercitarse")
+        navigation.navigate("Rutinas")
   
       } catch (error) {
         console.log(error)
