@@ -3,6 +3,7 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
+  FlatList,
   View,
 } from 'react-native';
 
@@ -35,28 +36,37 @@ const Rutina_detalle = ({navigation, route}) => {
     useEffect(() => {
         db.transaction((tx) => {
         tx.executeSql(
-        "SELECT * FROM Ejercicios_rut",
-        [],
+        "SELECT Nombre, Duracion, Grupo_muscular FROM Ejercicios INNER JOIN Ejercicios_rut ON Ejercicios.Id_ejercicios = Ejercicios_rut.Id_ejercicio WHERE Id_rutina=?",
+        [JSON.stringify(id)],
         (tx, results) => {
-            console.log(results.rows.length)
             let temp = [];
-            let idRutina;
             for (let i = 0; i < results.rows.length; i++){
-            console.log(results.rows.item(i))
-            // temp.push(datos);
+                temp.push(results.rows.item(i));
             }
-            // setEjercicios(temp)   //Guardamos en el arreglo original los valores de la base de datos
-            tx.executeSql(
-                "SELECT * FROM Rutinas WHERE Id_rutina=?",
-                [JSON.stringify(id)],
-                (tx, results) => {
-                    setNombreRutina(results.rows.item(0).Nombre)
-                    setDuracionRutina(results.rows.item(0).Duracion)
-                }
-            )
+            setEjercicios(temp)
         })
+        tx.executeSql(
+            "SELECT * FROM Rutinas WHERE Id_rutina=?",
+            [JSON.stringify(id)],
+            (tx, results) => {
+                setNombreRutina(results.rows.item(0).Nombre)
+                setDuracionRutina(results.rows.item(0).Duracion)
+            }
+        )
     })
     }, [isFocused]);
+
+    let listItemView = (item) => {
+        return (
+          <View>
+                <View style={styles.contenido_tarjeta}>
+                  <Text style={styles.texto_tarjetas}>Nombre: {item.Nombre}</Text>
+                  <Text style={styles.texto_tarjetas}>Duración: {item.Duracion}</Text>
+                  <Text style={styles.texto_tarjetas}>Grupo muscular: {item.Grupo_muscular}</Text>
+                </View>
+          </View>
+        );
+      };
 
     return(
         
@@ -83,7 +93,61 @@ const Rutina_detalle = ({navigation, route}) => {
                     {/* Titulo de añadir rutina */}
                     <Text style={styles.titulo_principal}>{nombreRutina}</Text>
 
+                    <View style={styles.contenedor_duracion}>
+                        <Text style={styles.duracion_rutina}>| {duracionRutina} Minutos</Text>
                     </View>
+
+                </View>
+
+                {/* Lista de rutinas guardadas */}
+                <View style={{flex: 1, marginTop: 20}}>
+                    <FlatList
+                    data={ejercicios}
+                    extraData={ejercicios}
+
+                    keyExtractor={(item, index) => index.toString()}
+                    renderItem={({item}) => listItemView(item)}
+                    />
+                </View>
+
+                <View style={styles.contenedor_botones_reproduccion}>
+                    {/* Boton de reiniciar */}
+                    <TouchableOpacity style={styles.boton_reset}
+                        onPress={()=>{console.log("Reiniciar")}}
+                        >
+                        <FontAwesome5
+                            name = {"redo"}
+                            size = {18}
+                            color = {"black"}
+                            style = {styles.icono_rep}
+                        />
+                    </TouchableOpacity>
+
+                    {/* Boton de reproducir */}
+                    <TouchableOpacity style={styles.boton_reproduccion}
+                        onPress={()=>{console.log("Play")}}
+                        >
+                        <FontAwesome5
+                            name = {"play"}
+                            size = {18}
+                            color = {"black"}
+                            style = {styles.icono_rep}
+                        />
+                    </TouchableOpacity>
+
+                    {/* Boton de detener */}
+                    <TouchableOpacity style={styles.boton_reproduccion}
+                        onPress={()=>{console.log("Stop")}}
+                        >
+                        <FontAwesome5
+                            name = {"stop"}
+                            size = {18}
+                            color = {"black"}
+                            style = {styles.icono_rep}
+                        />
+                    </TouchableOpacity>
+                </View>
+
             </View>
 
         </View>
@@ -132,16 +196,71 @@ const Rutina_detalle = ({navigation, route}) => {
         paddingBottom: 10,
         fontSize: 24
     },
-    texto:{
-      color: "black",
-      fontSize: 20
+    contenedor_duracion:{
+        flex: 1,
+        flexDirection: "row-reverse"
     },
-    boton:{
-      backgroundColor: "aqua",
-      padding: 14,
-      borderRadius: 10,
-      margin: 10
-    }
+    duracion_rutina:{
+        color: "black",
+        fontSize: 17,
+        paddingTop: 27,
+        paddingRight: 30,
+    },
+    contenido_tarjeta: {
+        marginLeft: 20,
+        marginRight: 20,
+        marginBottom: 5,
+        paddingTop: 5,
+        paddingLeft: 10,
+        paddingBottom: 7,
+        backgroundColor: "white",
+        shadowColor: "#000",
+        shadowOffset: {
+          width: 0,
+          height: 7,
+        },
+        shadowOpacity: 0.41,
+        shadowRadius: 9.11,
+  
+        elevation: 14,
+        borderRadius: 10
+    },
+    texto_tarjetas:{
+        fontSize: 17,
+        color: "black",
+        paddingBottom: 3,
+        paddingTop: 3
+    },
+    contenedor_botones_reproduccion:{
+        width: "100%",
+        flexDirection: "row",
+        justifyContent: "center",
+        alignItems: 'center',
+        marginBottom: 20
+    },
+    boton_reset:{
+        marginTop: 18,
+        paddingLeft: 3,
+        paddingTop: 7,
+        width: 45,
+        height: 45,
+        backgroundColor: "white",
+        borderRadius: 30
+    },
+    boton_reproduccion:{
+        marginLeft: 20,
+        marginTop: 18,
+        paddingLeft: 5,
+        paddingTop: 7,
+        width: 45,
+        height: 45,
+        backgroundColor: "white",
+        borderRadius: 30
+    },
+    icono_rep:{
+        padding: 5,
+        paddingLeft: 10
+    },
   });
 
   export default Rutina_detalle;

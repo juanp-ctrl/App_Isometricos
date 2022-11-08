@@ -169,7 +169,7 @@ const Menu_rutinas = ({navigation}) => {
 
           <View style={styles.body}> 
             
-            {/* Lista de rutinas guardadas */}
+              {/* Lista de rutinas guardadas */}
               <View style={{flex: 1}}>
                 <FlatList
                   data={rutinas}
