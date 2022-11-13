@@ -5,12 +5,15 @@ import {
   TouchableOpacity,
   FlatList,
   View,
+  Modal,
 } from 'react-native';
 
 import TituloPrincipal from '../components/TituloPrincipal';
 import { useIsFocused } from '@react-navigation/native';
 import SQLite from 'react-native-sqlite-storage';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+// import CountDown from 'react-native-countdown-component';
+import Timer from '../components/Temporizador';
 
 const db = SQLite.openDatabase(
     {
@@ -32,6 +35,10 @@ const Rutina_detalle = ({navigation, route}) => {
 
     const [nombreRutina, setNombreRutina] = useState("");
     const [duracionRutina, setDuracionRutina] = useState(0);
+
+    const [visibilidadTarjeta, setVisibilidadTarjeta] = useState(false);
+    const [nombreEjercicioActual, setNombreEjercicioActual] = useState("");
+    const [duracionActual, setDuracionActual] = useState(0);
 
     useEffect(() => {
         db.transaction((tx) => {
@@ -68,9 +75,60 @@ const Rutina_detalle = ({navigation, route}) => {
         );
       };
 
+    let arregloDeTiempos = () => {
+        let arreglo = []
+        for(let i=0; i<ejercicios.length; i++){
+            arreglo.push(ejercicios[i].Duracion)
+        }
+        console.log(arreglo)
+        return arreglo
+    };
+
+    let arregloEjercicios = () => {
+        let arreglo = []
+        for(let i=0; i<ejercicios.length; i++){
+            arreglo.push(ejercicios[i].Nombre)
+        }
+        console.log(arreglo)
+        return arreglo
+    }
+
     return(
         
         <View style={styles.super_body}>
+
+            {/* Tarjetas de reproduccion */}
+            <Modal
+                visible={visibilidadTarjeta}
+                transparent
+                animationType="fade"
+                hardwareAccelerated
+                onRequestClose={() => {
+                    setVisibilidadTarjeta(false)
+                }}
+                >
+                    <View style={styles.modal_centrado}>
+                        <View style={styles.modal_recuadro}>
+                            <View style={styles.modal_body}>
+                                <View style={styles.seccion_control}>
+                                    <TouchableOpacity style={styles.boton_go_back_2}
+                                        onPress={()=>{setVisibilidadTarjeta(false)}}
+                                        >
+                                        <FontAwesome5
+                                            name = {"chevron-left"}
+                                            size = {14}
+                                            color = {"black"}
+                                            style = {styles.icono_go_back}
+                                        />
+                                    </TouchableOpacity>
+                                </View>
+                                {/* Contador del reproductor */}
+                                <Timer nombre={arregloEjercicios()} tiempo={arregloDeTiempos()}></Timer>     
+                            </View>
+                        </View>
+                    </View>
+
+            </Modal>
             
             <TituloPrincipal titulo={"Ejercitarse"}/>
 
@@ -125,7 +183,10 @@ const Rutina_detalle = ({navigation, route}) => {
 
                     {/* Boton de reproducir */}
                     <TouchableOpacity style={styles.boton_reproduccion}
-                        onPress={()=>{console.log("Play")}}
+                        onPress={()=>{
+                            setNombreEjercicioActual(ejercicios[0].Nombre);
+                            setDuracionActual(ejercicios[0].Duracion)
+                            setVisibilidadTarjeta(true)}}
                         >
                         <FontAwesome5
                             name = {"play"}
@@ -260,6 +321,38 @@ const Rutina_detalle = ({navigation, route}) => {
     icono_rep:{
         padding: 5,
         paddingLeft: 10
+    },
+    // Modal Styles
+    modal_centrado:{
+        alignItems: "center",
+        justifyContent: "center",
+        flex: 1,
+        backgroundColor: "#0000005e"
+      },
+      modal_recuadro:{
+        height: "90%",
+        width: "85%",
+        backgroundColor: "white",
+        borderRadius: 10
+      },
+      modal_body: {
+        flex: 1,
+        alignItems: 'center',
+      },
+      seccion_control:{
+        width: "100%",
+        flex: 1,
+        alignItems: "flex-start",
+        justifyContent: "flex-start"
+      },
+      boton_go_back_2:{
+        marginTop: 18,
+        marginLeft: 14,
+        padding: 5,
+        width: 40,
+        height: 38,
+        backgroundColor: "#c7e9ea",
+        borderRadius: 30
     },
   });
 
