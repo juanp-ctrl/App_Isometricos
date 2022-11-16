@@ -7,6 +7,7 @@ import {
 } from 'react-native'
 
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import Sound from 'react-native-sound';
 
 export class Timer extends Component {
     constructor(props){
@@ -25,6 +26,7 @@ export class Timer extends Component {
     }
 
     componentDidMount(){
+        Sound.setCategory("Playback");
         if(this.state.contadorPlay == 1){
             if(this.state.segundos > 60){
                 this.setState({minutos: (this.state.segundos/60)})
@@ -79,6 +81,16 @@ export class Timer extends Component {
         if (this.state.minutos < 0){
             if(this.state.iterador == this.state.tiempos.length-1){
                 console.log("hasta aca")
+                let ring = new Sound("sonido_v2.mp3", Sound.MAIN_BUNDLE, (error) => {
+                    if (error) {
+                        console.log('failed to load the sound', error);
+                        return;
+                      }
+                    else{
+                        ring.setVolume(1)
+                        ring.play()
+                    }
+                })
                 clearInterval(this.interval)
             }
             else{
@@ -87,6 +99,16 @@ export class Timer extends Component {
                 this.setState({segundos: this.state.tiempos[this.state.iterador+1]})
                 this.setState({timeLeft: this.state.tiempos[this.state.iterador+1]})
                 this.setState({ejercicio: this.state.nombres[this.state.iterador+1]})
+                let ring = new Sound("sonido_v2.mp3", Sound.MAIN_BUNDLE, (error) => {
+                    if (error) {
+                        console.log('failed to load the sound', error);
+                        return;
+                      }
+                    else{
+                        ring.setVolume(1)
+                        ring.play()
+                    }
+                })
             }
         }
         else if (this.state.contadorPlay == 1){
@@ -123,9 +145,17 @@ export class Timer extends Component {
             </View>
             </>
             :
-            <Text style={styles.titulo_final}>
-                Tiempo!
-            </Text>
+            <View style={styles.contenedor_final}>
+                <FontAwesome5
+                    name = {"grin-beam"}
+                    size = {130}
+                    color = {"black"}
+                    style = {styles.icono_rep}
+                />
+                <Text style={styles.titulo_final}>
+                    Tiempo!
+                </Text>
+            </View>
             }
 
             {/* Boton de stop */}
@@ -151,6 +181,7 @@ export class Timer extends Component {
                     onPress={()=>{
                         console.log("previous")
                         if(this.state.iterador > 0){
+                            this.setState({minutos: 0})
                             this.setState({iterador: this.state.iterador - 1})
                             this.setState({segundos: this.state.tiempos[this.state.iterador-1]})
                             this.setState({timeLeft: this.state.tiempos[this.state.iterador-1]})
@@ -225,6 +256,10 @@ const styles = StyleSheet.create({
         color: "black",
         paddingBottom: 10,
         marginTop: 100,
+    },
+    contenedor_final:{
+        alignItems: "center",
+        justifyContent: "center"
     },
     titulo_final:{
         fontSize: 27,

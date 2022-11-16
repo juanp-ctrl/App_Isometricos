@@ -152,7 +152,7 @@ const Rutina_detalle = ({navigation, route}) => {
                     <Text style={styles.titulo_principal}>{nombreRutina}</Text>
 
                     <View style={styles.contenedor_duracion}>
-                        <Text style={styles.duracion_rutina}>| {duracionRutina} Minutos</Text>
+                        <Text style={styles.duracion_rutina}>| {duracionRutina} Seg</Text>
                     </View>
 
                 </View>

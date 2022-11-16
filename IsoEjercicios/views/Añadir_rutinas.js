@@ -172,7 +172,7 @@ const Añadir_rutinas = ({navigation}) => {
                   <Text style={styles.titulo_rutinas}>{item.Nombre}</Text>
             </Pressable>
             <View style={styles.contenido_tarjeta}>
-              <Text style={styles.texto_tarjetas}>Duración: {item.Duracion}</Text>
+              <Text style={styles.texto_tarjetas}>Duración: {item.Duracion} Seg</Text>
               <Text style={styles.texto_tarjetas}>Grupo muscular: {item.Grupo_muscular}</Text>
             </View>
       </View>
@@ -245,7 +245,7 @@ const Añadir_rutinas = ({navigation}) => {
             {/* Duracion total de la rutina */}
             <View style={styles.contenedor_duracion}>
               <Text style={styles.texto_duracion}>Duración:</Text>
-              <Text style={styles.texto_numero_duracion}>{tiempoGlobal} Minutos</Text>
+              <Text style={styles.texto_numero_duracion}>{tiempoGlobal} Segundos</Text>
             </View>
 
             {/* Boton de añadir rutina */}

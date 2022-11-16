@@ -14,6 +14,7 @@ import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import SQLite from 'react-native-sqlite-storage';
 
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { useIsFocused } from '@react-navigation/native';
 
 import Añadir_rutinas from './Añadir_rutinas';
 import TituloPrincipal from '../components/TituloPrincipal';
@@ -30,6 +31,8 @@ const db = SQLite.openDatabase(
 
 const Editar_rutinas = ({navigation}) => {
 
+  const isFocused = useIsFocused();
+
   const [rutinas, setRutinas] = useState([]);
 
   useEffect(() => {
@@ -45,7 +48,7 @@ const Editar_rutinas = ({navigation}) => {
         setRutinas(temp)
        })
    })
-  }, []);
+  }, [isFocused]);
 
   let onpres = false;
 
@@ -117,10 +120,34 @@ const Editar_rutinas = ({navigation}) => {
             </TouchableOpacity>
           </View>
         </View>
-          <View style={styles.contenido_tarjeta}>
-            <Text style={styles.texto_tarjetas}>Días: {item.Dias}</Text>
-            <Text style={styles.texto_tarjetas}>Duración: {item.Duracion}</Text>
+
+        {/* Detalles de la tarjeta */}
+        <View style={styles.contenido_tarjeta}>
+          <View style={styles.contenedor_dias}>
+            <FontAwesome5
+                  name = {"calendar-alt"}
+                  size = {34}
+                  color = {"black"}
+                  style = {styles.icono_tarjetas}
+                />
+            <View style={styles.contentenedor_dias_detalle}>
+              <Text style={styles.texto_tarjetas_sup}>Días</Text>
+              <Text style={styles.texto_tarjetas}>{item.Dias}</Text>
+            </View>
           </View>
+          <View style={styles.contenedor_duracion}>
+            <FontAwesome5
+                  name = {"stopwatch"}
+                  size = {34}
+                  color = {"black"}
+                  style = {styles.icono_tarjetas}
+                />
+            <View style={styles.contentenedor_dias_detalle}>
+              <Text style={styles.texto_tarjetas_sup}>Duración</Text>
+              <Text style={styles.texto_tarjetas}>{item.Duracion} Seg</Text>
+            </View>
+          </View>
+        </View>
       </View>
     );
   };
@@ -137,8 +164,8 @@ const Editar_rutinas = ({navigation}) => {
       <View style={styles.body}> 
         
         {/* Lista de rutinas guardadas */}
-        <View style={{flex: 1}}>
-            <FlatList style={styles.lista}
+        <View style={styles.contenedor_tarjetas}>
+            <FlatList
               data={rutinas}
               ItemSeparatorComponent={listViewItemSeparator}
               keyExtractor={(item, index) => index.toString()}
@@ -197,19 +224,12 @@ const Editar_rutinas = ({navigation}) => {
       marginTop: -30,
       zIndex: 1
     },
-    titulo_principal:{
-      color: "black",
-      paddingTop: 20,
-      paddingLeft: 25,
-      paddingBottom: 10,
-      fontSize: 24
-    },
-    lista:{
+    contenedor_tarjetas:{
+      flex: 1,
+      paddingTop: 10,
+      paddingLeft: 15,
+      paddingRight: 15,
       marginBottom: 55
-    },
-    texto:{
-      color: "black",
-      fontSize: 14
     },
     contenedor_titulo_tarjeta:{
       flexDirection: "row",
@@ -221,8 +241,14 @@ const Editar_rutinas = ({navigation}) => {
       borderTopEndRadius: 20
     },
     contenedor_titulo:{
-      flex: 1,
+      flex: 2,
       flexDirection: "row",
+    },
+    titulo_rutinas: {
+      color: "#c7e9ea",
+      fontWeight: "bold",
+      margin: 14,
+      fontSize: 27
     },
     contenedor_botones_titulo:{
       flex: 1,
@@ -241,17 +267,11 @@ const Editar_rutinas = ({navigation}) => {
       padding: 5,
       paddingRight: 20
     },
-    titulo_rutinas: {
-      color: "white",
-      margin: 14,
-      fontSize: 27
-    },
     contenido_tarjeta: {
       marginLeft: 20,
       marginRight: 20,
       marginBottom: 3,
       paddingTop: 5,
-      paddingLeft: 10,
       paddingBottom: 7,
       backgroundColor: "white",
       shadowColor: "#000",
@@ -266,11 +286,31 @@ const Editar_rutinas = ({navigation}) => {
       borderBottomLeftRadius: 10,
       borderBottomRightRadius: 10
     },
-    texto_tarjetas:{
-      fontSize: 17,
-      color: "black",
+    contenedor_dias:{
+      flexDirection: "row",
+      paddingLeft: 10,
       paddingBottom: 3,
-      paddingTop: 3
+      borderColor: "black",
+      borderBottomWidth: 1
+    },
+    icono_tarjetas:{
+      paddingLeft: 7,
+      paddingTop: 5,
+      paddingRight: 27
+    },
+    texto_tarjetas_sup:{
+      fontSize: 21,
+      color: "black",
+    },
+    texto_tarjetas:{
+      fontSize: 14,
+      color: "black",
+      paddingBottom: 3
+    },
+    contenedor_duracion:{
+      flexDirection: "row",
+      paddingLeft: 10,
+      paddingTop: 5
     },
     contenedor_botones: {
       flexDirection: 'row'
