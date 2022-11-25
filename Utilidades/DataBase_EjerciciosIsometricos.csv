@@ -1,0 +1,25 @@
+﻿Id_ejercicios;Nombre;Duracion;Grupo_muscular
+1;Plancha;30;Abdomen
+2;Plancha Lateral;15;Abdomen
+3;Plancha Bosu;20;Abdomen
+4;Abdominales con Plancha en Movimiento;10;Abdomen
+5;Escalador;30;Abdomen
+6;Cuad sin Apoyo;15;Cuadricep
+7;Cuad con Apoyo;30;Cuadricep
+8;Elevacion Gluteo;10;Isquiotibial
+9;Sentadilla;15;Cuadricep
+10;Cuad Sentado;10;Cuadricep
+11;Descanso;5;Recuperación
+12;Descanso;10;Recuperación
+13;Descanso;15;Recuperación
+14;Elavacion Gluteo Individual;10;Isquiotibial
+15;Gluteo Medio;15;Isquiotibial
+16;Flexion Hombro;5;Hombro
+17;Abduccion Hombro;5;Hombro
+18;Rotacion Hombro;10;Hombro
+19;Rotacion Interna Hombro;10;Hombro
+20;Extension Hombro;5;Hombro
+21;Perro de Caza;10;Espalda
+22;Postura del Gato;10;Espalda
+23;Estiramiento Piernas;15;Espalda
+24;Dorsales;10;Espalda
